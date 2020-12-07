@@ -1,0 +1,479 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<style>
+    .border {
+        padding: 20px;
+    }
+    input.token {
+        width: 450px;
+    }
+    input { margin: 5px; width: 90% }
+    textarea {
+        margin: 5px;
+        width: 100%;
+    }
+    button { margin: 0 20px; }
+
+    .btn-sm { padding: .25rem .5rem; 
+                  font-size: .875rem;
+                  line-height: 1.5;
+                  border-radius: .2rem;
+                  margin-top: 8px; 
+                  height: 32px; }
+
+</style>
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <div>To view logs, please open browser console</div>
+
+    <div id="tab-setup" class="border text-left">
+        <div class="row">
+            <label for="apiendpoint" class="col-sm-2">API Endpoint</label>
+            <input id="apiendpoint" type="text" class="form-control col-sm-6" value="https://localhost:5001" />
+            <button type="button" id="apiendpoint-validate" class="btn btn-primary">Validate</button>
+        </div>
+        <div class="row">
+            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="validate_response"></div>
+        </div>
+    </div>
+    @*<div>
+        <button id="test-signalr">Test</button>
+    </div>*@
+    <div id="tab-register" class="border text-left">
+        <div>
+            <label class="font-weight-bold">POST /connect/register</label>
+        </div>
+        <div class="row">
+            <label class="col-sm-2">client_name</label>
+            <input id="reg_client_name" type="text" class="form-control col-sm-3" value="Test Client" />
+        </div>
+        <div class="row">
+            <label class="col-sm-2">client_uri</label>
+            <input id="reg_client_uri" type="text" class="form-control col-sm-3" value="https://nd.gov" />
+        </div>
+        <div class="row">
+            <label class="col-sm-2">scope</label>
+            <input id="reg_scope" type="text" class="form-control col-sm-3" value="ocp-publisher" />
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                Additional Properties
+            </div>
+            <input id="reg_add1property" type="text" class="form-control col-sm-3" value="token_endpoint_auth_method" />
+            <input id="reg_add1value" type="text" class="form-control col-sm-3" value="client_secret_basic" />
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+            </div>
+            <input id="reg_add2property" type="text" class="form-control col-sm-3" value="" />
+            <input id="reg_add2value" type="text" class="form-control col-sm-3" value="" />
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+            </div>
+            <input id="reg_add3property" type="text" class="form-control col-sm-3" value="" />
+            <input id="reg_add3value" type="text" class="form-control col-sm-3" value="" />
+        </div>
+        <div class="row" style="margin:10px 0;">
+            <button type="button" id="register" class="btn btn-primary">Register</button>
+        </div>
+        <div class="row">
+            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="reg_response"></div>
+        </div>
+    </div>
+
+    <div id="tab-login" class="border text-left">
+        <div>
+            <label class="font-weight-bold">POST /connect/token</label>
+        </div>
+        <div class="row">
+            <label class="col-sm-2">client_id</label>
+            <input id="auth_client_id" type="text" class="form-control col-sm-6" value="" />
+            <button type="button" id="auth_userlastreg" class="btn btn-sm btn-primary">Use Last Reg</button>
+        </div>
+        <div class="row">
+            <label class="col-sm-2">client_secret</label>
+            <input id="auth_client_secret" class="form-control col-sm-6" type="password" value="" />
+        </div>
+        <div class="row">
+            <label class="col-sm-2">scope</label>
+            <input id="auth_scope" type="text" class="form-control col-sm-3" value="ocp-publisher" />
+        </div>
+        <div class="row">
+            <label class="col-sm-2">grant_type</label>
+            <input id="auth_grant_type" type="text" class="form-control col-sm-3" value="client_credentials" />
+        </div>
+        <div class="row" style="margin:10px 0;">
+            <button id="authenticate" type="button" class="btn btn-primary">Authenticate</button>
+        </div>
+        <div class="row">
+            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="auth_response"></div>
+        </div>
+    </div>
+
+    <div id="tab-publish" class="border text-left">
+        <div>
+            <label class="font-weight-bold">POST /api/publish</label>
+        </div>
+        <div class="row">
+            <label class="col-sm-2">Authorization</label>
+            <input id="publish_token" type="text" class="form-control col-sm-6 token" value="" />
+            <button id="publish_uselasttoken" type="button" class="btn btn-sm btn-primary">Use Last Token</button>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <label>CLR Request (JSON)</label><br />
+                <br />
+                <button type="button" id="publish_browsefile" class="btn btn-sm btn-outline-primary" style="margin: 0; padding: 1px 4px; ">Browse...</button>
+                <button type="button" id="publish_clear" class="btn btn-sm btn-outline-primary" style="margin: 0; padding: 1px 4px;">Clear</button>
+                <input style="width:0px; height:0px; overflow: hidden;" type="file" accept="application/json" name="inputfile" id="inputfile">
+            </div>
+            <textarea id="publish_clr" class="form-control col-sm-9" style="font-family: 'Courier New'; font-size: 13px; min-height: 400px;"></textarea>
+        </div>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div style="display: none;">
+                <button type="button" class="btn btn-link">Add PDF Assertion</button>
+            </div>
+        </div>
+        <div class="row" style="margin:10px 0;">
+            <button id="publish" type="button" class="btn btn-primary">Publish</button>
+        </div>
+        <div class="row">
+            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="publish_response"></div>
+        </div>
+    </div>
+
+    <div id="tab-inquire" class="border text-left">
+        <div>
+            <label class="font-weight-bold">GET /api/requests/{requestId}</label>
+        </div>
+        <div class="row">
+            <label class="col-sm-2">Authorization</label>
+            <input id="inquire_token" type="text" class="form-control col-sm-6 token" value="" />
+            <button id="inquire_uselasttoken" type="button" class="btn btn-sm btn-primary">Use Last Token</button>
+        </div>
+        <div class="row">
+            <label class="col-sm-2">RequestId</label>
+            <input id="inquire_requestid" type="text" class="form-control col-sm-3" value="" />
+            <button id="inquire_uselastrequestId" type="button" class="btn btn-sm btn-primary">Use Last RequestId</button>
+        </div>
+        <div class="row" style="margin:10px 0;">
+            <button id="inquire" type="button" class="btn btn-primary">Request Publish Status</button>
+        </div>
+        <div class="row">
+            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="inquire_response"></div>
+        </div>
+        <img id="inquire_qrcode" src="" alt="QR Code" style="display:none;"/>
+    </div>
+
+</div>
+
+@section scripts
+{
+<script src="~/lib/signalr/signalr.js"></script>
+<script>
+
+    $(document).ready(function () {
+        var endpoint = localStorage.getItem('apiendpoint');
+
+        if (endpoint) {
+            console.log(endpoint);
+            $('#apiendpoint').val(endpoint);
+        }
+    });
+
+    var signalRConnection = null;
+
+
+    //$('#test-signalr').on('click', function () {
+    //    console.log('test signalr');
+    //    var requestId = "test123";
+    //    connectSignalR(endpoint(), requestId);
+    //});
+
+
+    function connectSignalR(url, requestId) {
+        signalRConnection = new signalR.HubConnectionBuilder()
+            .withUrl(`${url}/hubs/requests`)
+            .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        signalRConnection.on('PublishUpdate', (requestId, status) => {
+            console.log(`SignalR received PublishUpdate message (requestId: ${requestId}, status: ${status})`);
+            alert(`SignalR: Request ${requestId} has changed status to ${status}`);
+
+            // if Complete, no need to wait for additional messages, so leave group
+            if (status == "Complete") {
+                signalRConnection.invoke("LeaveGroup", requestId)
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+        });
+
+        signalRConnection.onclose(startSignalR);
+
+        // Start the connection.
+        startSignalR(requestId);
+    }
+
+
+    async function startSignalR(requestId) {
+        try {
+            await signalRConnection.start();
+
+            console.log("SignalR Connected.");
+            signalRConnection.invoke("JoinGroup", requestId)
+                .catch(err => {
+                    console.log(err);
+                });
+        } catch (err) {
+            console.log(err);
+            setTimeout(startSignalR, 5000);
+        }
+    };
+
+    function endpoint() {
+        return $('#apiendpoint').val().replace(/\/$/, "");
+    }
+
+    $('#apiendpoint-validate').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#validate_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">validating...</p>');
+        var url = `${endpoint()}/.well-known/openid-configuration`;
+        console.log(`GET ${url}`);
+        $.ajax({
+            url: url,
+            method: 'GET', 
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                localStorage.setItem('apiendpoint', $('#apiendpoint').val());
+                expectedTokenEndpoint = `${endpoint()}/connect/token`;
+                isValid = (data.token_endpoint == expectedTokenEndpoint);
+                let formattedResponse = JSON.stringify(data, null, '\t');
+                if (isValid) {
+                    responseSection.html(`<p class="text-success">Validation Response Successful</p><pre>${formattedResponse}`);
+                }
+                else {
+                    responseSection.html(`<p class="text-danger">Validation Response Failed - Token Endpoint Expected was ${expectedTokenEndpoint}</p><pre>${formattedResponse}`);
+                }
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                responseSection.html(`<p class="text-danger">Validation Response Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+    var last_registration_response = {};
+    var last_auth_response = {};
+
+    $('#register').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#reg_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">registering...</p>');
+        var model = {
+            client_name: $('#reg_client_name').val(),
+            client_uri: $('#reg_client_uri').val(),
+            scope: $('#reg_scope').val(),
+        };
+
+        if ($('#reg_add1property').val() != '') {
+            model[$('#reg_add1property').val()] = $('#reg_add1value').val()
+        }
+        if ($('#reg_add2property').val() != '') {
+            model[$('#reg_add2property').val()] = $('#reg_add2value').val()
+        }
+        if ($('#reg_add1property').val() != '') {
+            model[$('#reg_add2property').val()] = $('#reg_add2value').val()
+        }
+
+        console.log(model);
+
+        var url = `${endpoint()}/connect/register`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            method: 'POST',
+            data: JSON.stringify(model),
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                last_registration_response = data;
+                localStorage.setItem('reg_client_id', data.client_id);
+                localStorage.setItem('reg_client_secret', data.client_secret);
+                let formattedResponse = JSON.stringify(data, null, '\t');
+                responseSection.html(`<p class="text-success">Registration Successful</p><pre>${formattedResponse}`);
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                responseSection.html(`<p class="text-danger">Registration Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+    $('#auth_userlastreg').on('click', function () {
+        $("#auth_client_id").val(localStorage.getItem('reg_client_id'));
+        $("#auth_client_secret").val(localStorage.getItem('reg_client_secret'));
+    });
+
+   
+    $('#authenticate').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#auth_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">authenticating...</p>');
+        var model = {
+            client_id: $('#auth_client_id').val(),
+            client_secret: $('#auth_client_secret').val(),
+            scope: $('#auth_scope').val(),
+            grant_type: $('#auth_grant_type').val(),
+        };
+
+        console.log(model);
+
+        var url = `${endpoint()}/connect/token`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/x-www-form-urlencoded",
+            dataType: "json",
+            method: 'POST',
+            data: model,
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                last_auth_response = data;
+                localStorage.setItem('auth_access_token', data.access_token);
+                let formattedResponse = JSON.stringify(data, null, '\t');
+                responseSection.html(`<p class="text-success">Authentication Successful</p><pre>${formattedResponse}`);
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                responseSection.html(`<p class="text-danger">Authentication Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+    $('#publish_uselasttoken').on('click', function () {
+        $("#publish_token").val(`Bearer ${localStorage.getItem('auth_access_token')}`);
+    });
+
+    $('#publish_browsefile').on('click', function () {
+        $('#inputfile').trigger('click');
+    });
+
+    $('#publish_clear').on('click', function () {
+        $('#publish_clr').text("");
+    });
+
+    $('#inputfile').on('change', function () {
+        var fr = new FileReader();
+        fr.onload = function () {
+            console.log(fr.result);
+            $('#publish_clr').text(fr.result);
+        }
+
+        fr.readAsText(this.files[0]); 
+        $(this).val("");
+    });
+
+    $('#publish').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#publish_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">publishing...</p>');
+        var model = JSON.parse($('#publish_clr').val());
+
+        console.log(model);
+        var url = `${endpoint()}/api/publish`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json",
+            headers: { "Authorization": $('#publish_token').val() },
+            dataType: "json",
+            method: 'POST',
+            data: JSON.stringify(model),
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                last_registration_response = data;
+                localStorage.setItem('publish_requestid', data.requestId);
+
+                connectSignalR(endpoint(), data.requestId);
+
+                let formattedResponse = JSON.stringify(data, null, '\t');
+                responseSection.html(`<p class="text-success">Publish Accepted.  Subscribed to SignalR channel</p><pre>${formattedResponse}`);
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                responseSection.html(`<p class="text-danger">Publish Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+    $('#inquire_uselasttoken').on('click', function () {
+        $("#inquire_token").val(`Bearer ${localStorage.getItem('auth_access_token')}`);
+    });
+
+    $('#inquire_uselastrequestId').on('click', function () {
+        $("#inquire_requestid").val(localStorage.getItem('publish_requestid'));
+    });
+
+    $('#inquire').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#inquire_response');
+
+        $('#inquire_qrcode').hide();
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">Retrieving status...</p>');
+
+        var url = `${endpoint()}/api/requests/${$('#inquire_requestid').val()}`;
+        console.log(`GET ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json",
+            headers: { "Authorization": $('#inquire_token').val() },
+            dataType: "json",
+            method: 'GET',
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                let formattedResponse = JSON.stringify(data, null, '\t');
+                responseSection.html(`<p class="text-success">Status Inquiry Succeeded</p><pre>${formattedResponse}`);
+                if (data.qrCode) {
+                    $('#inquire_qrcode').attr('src', `data:image/png;base64, ${data.qrCode.data}`);
+                    $('#inquire_qrcode').show();
+
+                }
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                responseSection.html(`<p class="text-danger">Status Inquiry Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+</script>
+}
