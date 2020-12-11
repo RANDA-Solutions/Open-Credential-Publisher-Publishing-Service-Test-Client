@@ -8,12 +8,14 @@
     input.token {
         width: 450px;
     }
-    input { margin: 5px; width: 90% }
+    input { margin: 2px; width: 95% }
     textarea {
         margin: 5px;
         width: 100%;
     }
-    button { margin: 0 20px; }
+    button { margin: 0 10px; }
+
+    button.btn-link-sm { font-size: 0.8rem; }
 
     .btn-sm { padding: .25rem .5rem; 
                   font-size: .875rem;
@@ -21,7 +23,17 @@
                   border-radius: .2rem;
                   margin-top: 8px; 
                   height: 32px; }
+    .toggle {
+        cursor: pointer;
+    }
 
+    .response {
+        font-size:11px; margin: 10px; padding-left:20px; overflow: auto; max-height: 300px; width:100%;
+    }
+
+    h5 {
+        text-align: left; margin:20px 0px; text-decoration: underline;
+    }
 </style>
 
 <div class="text-center">
@@ -31,144 +43,283 @@
     <div id="tab-setup" class="border text-left">
         <div class="row">
             <label for="apiendpoint" class="col-sm-2">API Endpoint</label>
-            <input id="apiendpoint" type="text" class="form-control col-sm-6" value="https://localhost:5001" />
-            <button type="button" id="apiendpoint-validate" class="btn btn-primary">Validate</button>
-        </div>
-        <div class="row">
-            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="validate_response"></div>
-        </div>
-    </div>
-    @*<div>
-        <button id="test-signalr">Test</button>
-    </div>*@
-    <div id="tab-register" class="border text-left">
-        <div>
-            <label class="font-weight-bold">POST /connect/register</label>
-        </div>
-        <div class="row">
-            <label class="col-sm-2">client_name</label>
-            <input id="reg_client_name" type="text" class="form-control col-sm-3" value="Test Client" />
-        </div>
-        <div class="row">
-            <label class="col-sm-2">client_uri</label>
-            <input id="reg_client_uri" type="text" class="form-control col-sm-3" value="https://nd.gov" />
-        </div>
-        <div class="row">
-            <label class="col-sm-2">scope</label>
-            <input id="reg_scope" type="text" class="form-control col-sm-3" value="ocp-publisher" />
-        </div>
-        <div class="row">
-            <div class="col-sm-3">
-                Additional Properties
-            </div>
-            <input id="reg_add1property" type="text" class="form-control col-sm-3" value="token_endpoint_auth_method" />
-            <input id="reg_add1value" type="text" class="form-control col-sm-3" value="client_secret_basic" />
-        </div>
-        <div class="row">
-            <div class="col-sm-3">
-            </div>
-            <input id="reg_add2property" type="text" class="form-control col-sm-3" value="" />
-            <input id="reg_add2value" type="text" class="form-control col-sm-3" value="" />
-        </div>
-        <div class="row">
-            <div class="col-sm-3">
-            </div>
-            <input id="reg_add3property" type="text" class="form-control col-sm-3" value="" />
-            <input id="reg_add3value" type="text" class="form-control col-sm-3" value="" />
+            <input id="apiendpoint" type="text" class="form-control col-sm-7" value="https://localhost:5001" />
+
+            
         </div>
         <div class="row" style="margin:10px 0;">
-            <button type="button" id="register" class="btn btn-primary">Register</button>
+            <button type="button" id="apiendpoint-validate" class="btn btn-primary">Validate API Endpoint</button>
         </div>
         <div class="row">
-            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="reg_response"></div>
+            <div class="response" id="validate_response"></div>
         </div>
     </div>
 
-    <div id="tab-login" class="border text-left">
-        <div>
-            <label class="font-weight-bold">POST /connect/token</label>
-        </div>
-        <div class="row">
-            <label class="col-sm-2">client_id</label>
-            <input id="auth_client_id" type="text" class="form-control col-sm-6" value="" />
-            <button type="button" id="auth_userlastreg" class="btn btn-sm btn-primary">Use Last Reg</button>
-        </div>
-        <div class="row">
-            <label class="col-sm-2">client_secret</label>
-            <input id="auth_client_secret" class="form-control col-sm-6" type="password" value="" />
-        </div>
-        <div class="row">
-            <label class="col-sm-2">scope</label>
-            <input id="auth_scope" type="text" class="form-control col-sm-3" value="ocp-publisher" />
-        </div>
-        <div class="row">
-            <label class="col-sm-2">grant_type</label>
-            <input id="auth_grant_type" type="text" class="form-control col-sm-3" value="client_credentials" />
-        </div>
-        <div class="row" style="margin:10px 0;">
-            <button id="authenticate" type="button" class="btn btn-primary">Authenticate</button>
-        </div>
-        <div class="row">
-            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="auth_response"></div>
-        </div>
-    </div>
+    <ul class="nav nav-tabs" role="tablist" style="margin-top:20px;">
+        <li class="nav-item"><a class="nav-link active" data-toggle="tab" role="tab" href="#tab-main-publisher">Publish</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" role="tab" href="#tab-main-wallet">Wallet</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" role="tab" href="#tab-main-revoke">Revoke</a></li>
+    </ul>
 
-    <div id="tab-publish" class="border text-left">
-        <div>
-            <label class="font-weight-bold">POST /api/publish</label>
-        </div>
-        <div class="row">
-            <label class="col-sm-2">Authorization</label>
-            <input id="publish_token" type="text" class="form-control col-sm-6 token" value="" />
-            <button id="publish_uselasttoken" type="button" class="btn btn-sm btn-primary">Use Last Token</button>
-        </div>
-        <div class="row">
-            <div class="col-sm-2">
-                <label>CLR Request (JSON)</label><br />
-                <br />
-                <button type="button" id="publish_browsefile" class="btn btn-sm btn-outline-primary" style="margin: 0; padding: 1px 4px; ">Browse...</button>
-                <button type="button" id="publish_clear" class="btn btn-sm btn-outline-primary" style="margin: 0; padding: 1px 4px;">Clear</button>
-                <input style="width:0px; height:0px; overflow: hidden;" type="file" accept="application/json" name="inputfile" id="inputfile">
+    <div class="tab-content">
+        <div id="tab-main-publisher" class="tab-pane fade show active" role="tabpanel">
+            <h5>Register Publisher Client</h5>
+            <div id="tab-register-publisher" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /connect/register</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_name</label>
+                    <input id="reg_pub_client_name" type="text" class="form-control col-sm-3" value="Test Publisher Client" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_uri</label>
+                    <input id="reg_pub_client_uri" type="text" class="form-control col-sm-3" value="https://nd.gov" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">scope</label>
+                    <input id="reg_pub_scope" type="text" class="form-control col-sm-3" value="ocp-publisher" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        Additional Properties
+                    </div>
+                    <input id="reg_pub_add1property" type="text" class="form-control col-sm-3" value="token_endpoint_auth_method" />
+                    <input id="reg_pub_add1value" type="text" class="form-control col-sm-3" value="client_secret_basic" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                    </div>
+                    <input id="reg_pub_add2property" type="text" class="form-control col-sm-3" value="" />
+                    <input id="reg_pub_add2value" type="text" class="form-control col-sm-3" value="" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                    </div>
+                    <input id="reg_pub_add3property" type="text" class="form-control col-sm-3" value="" />
+                    <input id="reg_pub_add3value" type="text" class="form-control col-sm-3" value="" />
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button type="button" id="register_publisher" class="btn btn-primary">Register Publisher Client</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="reg_pub_response"></div>
+                </div>
             </div>
-            <textarea id="publish_clr" class="form-control col-sm-9" style="font-family: 'Courier New'; font-size: 13px; min-height: 400px;"></textarea>
-        </div>
-        <div class="row">
-            <div class="col-sm-2"></div>
-            <div style="display: none;">
-                <button type="button" class="btn btn-link">Add PDF Assertion</button>
+
+            <h5>Authenticate Publisher Client</h5>
+            <div id="tab-login-publisher" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /connect/token</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_id</label>
+                    <input id="auth_pub_client_id" type="text" class="form-control col-sm-7" value="" />
+                    <button type="button" id="auth_pub_userlastreg" class="btn btn-link btn-link-sm">Use Last Registered Publisher</button>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_secret</label>
+                    <input id="auth_pub_client_secret" class="form-control col-sm-7" type="password" value="" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">scope</label>
+                    <input id="auth_pub_scope" type="text" class="form-control col-sm-3" value="ocp-publisher" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">grant_type</label>
+                    <input id="auth_pub_grant_type" type="text" class="form-control col-sm-3" value="client_credentials" />
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="authenticate_publisher" type="button" class="btn btn-primary">Authenticate Publisher Client</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="auth_pub_response"></div>
+                </div>
+            </div>
+
+            <h5>Publish CLR</h5>
+            <div id="tab-publish" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /api/publish</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Authorization</label>
+                    <input id="publish_token" type="text" class="form-control col-sm-7 token" value="" />
+                    <button id="publish_uselasttoken" type="button" class="btn btn-link btn-link-sm">Use Last Publisher Access Token</button>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>CLR Request (JSON)</label><br />
+                        <br />
+                        <button type="button" id="publish_browsefile" class="btn btn-sm btn-outline-primary" style="margin: 0; padding: 1px 4px; ">Browse...</button>
+                        <button type="button" id="publish_clear" class="btn btn-sm btn-outline-primary" style="margin: 0; padding: 1px 4px;">Clear</button>
+                        <input style="width:0px; height:0px; overflow: hidden;" type="file" accept="application/json" name="inputfile" id="inputfile">
+                    </div>
+                    <textarea id="publish_clr" class="form-control col-sm-9" style="font-family: 'Courier New'; font-size: 13px; min-height: 400px;"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2"></div>
+                    <div style="display: none;">
+                        <button type="button" class="btn btn-link-sm">Add PDF Assertion</button>
+                    </div>
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="publish" type="button" class="btn btn-primary">Publish CLR</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="publish_response"></div>
+                </div>
+            </div>
+
+            <h5>Inquire Publish Status</h5>
+            <div id="tab-inquire" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">GET /api/requests/{requestId}</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Authorization</label>
+                    <input id="inquire_token" type="text" class="form-control col-sm-7 token" value="" />
+                    <button id="inquire_uselasttoken" type="button" class="btn btn-link btn-link-sm">Use Last Publisher Access Token</button>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">RequestId</label>
+                    <input id="inquire_requestid" type="text" class="form-control col-sm-7" value="" />
+                    <button id="inquire_uselastrequestId" type="button" class="btn btn-link btn-link-sm">Use Last Generated RequestId</button>
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="inquire" type="button" class="btn btn-primary">Request Publish Status</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="inquire_response"></div>
+                </div>
+                <img id="inquire_qrcode" src="" alt="QR Code" style="display:none;" />
             </div>
         </div>
-        <div class="row" style="margin:10px 0;">
-            <button id="publish" type="button" class="btn btn-primary">Publish</button>
+
+        <div id="tab-main-wallet" class="tab-pane fade" role="tabpanel">
+            <h5>Register Wallet Client</h5>
+            <div id="section-register-wallet" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /connect/register</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_name</label>
+                    <input id="reg_wallet_client_name" type="text" class="form-control col-sm-3" value="Test Wallet Client" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_uri</label>
+                    <input id="reg_wallet_client_uri" type="text" class="form-control col-sm-3" value="https://nd.gov" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">scope</label>
+                    <input id="reg_wallet_scope" type="text" class="form-control col-sm-3" value="ocp-wallet" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        Additional Properties
+                    </div>
+                    <input id="reg_wallet_add1property" type="text" class="form-control col-sm-3" value="token_endpoint_auth_method" />
+                    <input id="reg_wallet_add1value" type="text" class="form-control col-sm-3" value="client_secret_basic" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                    </div>
+                    <input id="reg_wallet_add2property" type="text" class="form-control col-sm-3" value="" />
+                    <input id="reg_wallet_add2value" type="text" class="form-control col-sm-3" value="" />
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                    </div>
+                    <input id="reg_wallet_add3property" type="text" class="form-control col-sm-3" value="" />
+                    <input id="reg_wallet_add3value" type="text" class="form-control col-sm-3" value="" />
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button type="button" id="register_wallet" class="btn btn-primary">Register Wallet Client</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="reg_wallet_response"></div>
+                </div>
+            </div>
+
+            <h5>Authenticate Wallet Client</h5>
+            <div id="section-login-wallet" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /connect/token</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_id</label>
+                    <input id="auth_wallet_client_id" type="text" class="form-control col-sm-7" value="" />
+                    <button type="button" id="auth_wallet_userlastreg" class="btn btn-link btn-link-sm">Use Last Registered Wallet</button>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">client_secret</label>
+                    <input id="auth_wallet_client_secret" class="form-control col-sm-7" type="password" value="" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">scope</label>
+                    <input id="auth_wallet_scope" type="text" class="form-control col-sm-3" value="ocp-wallet" />
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">grant_type</label>
+                    <input id="auth_wallet_grant_type" type="text" class="form-control col-sm-3" value="client_credentials" />
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="authenticate_wallet" type="button" class="btn btn-primary">Authenticate Wallet Client</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="auth_wallet_response"></div>
+                </div>
+            </div>
+
+            <h5>Retrieve Verifiable Credentials</h5>
+            <div id="section-vc-wallet" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /api/credentials</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Authorization</label>
+                    <input id="vc_wallet_token" type="text" class="form-control col-sm-7 token" value="" />
+                    <button id="vc_wallet_uselasttoken" type="button" class="btn btn-link btn-link-sm">Use Last Wallet Access Token</button>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Access Key</label>
+                    <input id="vc_wallet_accesskey" type="text" class="form-control col-sm-7" value="" />
+                    <button type="button" id="vc_wallet_uselastaccesskey" class="btn btn-link btn-link-sm">Use Last Generated Access Key</button>
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="vc_wallet" type="button" class="btn btn-primary">Get Verifiable Credentials</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="vc_wallet_response"></div>
+                </div>
+            </div>
         </div>
-        <div class="row">
-            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="publish_response"></div>
+
+        <div id="tab-main-revoke" class="tab-pane fade" role="tabpanel">
+            <h5>Revoke Request/Key</h5>
+            <div id="section-revoke" class="border text-left">
+                <div class="info">
+                    <label><span class="font-weight-bold">DELETE /api/requests/{requestId}</span> (<i>Must be from same client_id who published</i>)</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Authorization</label>
+                    <input id="revoke_token" type="text" class="form-control col-sm-7 token" value="" />
+                    <button id="revoke_uselasttoken" type="button" class="btn btn-link btn-link-sm">Use Last Publisher Access Token</button>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">RequestId</label>
+                    <input id="revoke_requestid" type="text" class="form-control col-sm-7" value="" />
+                    <button id="revoke_uselastrequestId" type="button" class="btn btn-link btn-link-sm">Use Last Generated RequestId</button>
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="revoke" type="button" class="btn btn-primary">Revoke</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="revoke_response"></div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div id="tab-inquire" class="border text-left">
-        <div>
-            <label class="font-weight-bold">GET /api/requests/{requestId}</label>
-        </div>
-        <div class="row">
-            <label class="col-sm-2">Authorization</label>
-            <input id="inquire_token" type="text" class="form-control col-sm-6 token" value="" />
-            <button id="inquire_uselasttoken" type="button" class="btn btn-sm btn-primary">Use Last Token</button>
-        </div>
-        <div class="row">
-            <label class="col-sm-2">RequestId</label>
-            <input id="inquire_requestid" type="text" class="form-control col-sm-3" value="" />
-            <button id="inquire_uselastrequestId" type="button" class="btn btn-sm btn-primary">Use Last RequestId</button>
-        </div>
-        <div class="row" style="margin:10px 0;">
-            <button id="inquire" type="button" class="btn btn-primary">Request Publish Status</button>
-        </div>
-        <div class="row">
-            <div style="font-size:11px; margin: 10px; padding-left:20px;" id="inquire_response"></div>
-        </div>
-        <img id="inquire_qrcode" src="" alt="QR Code" style="display:none;"/>
-    </div>
-
 </div>
 
 @section scripts
@@ -241,6 +392,12 @@
         return $('#apiendpoint').val().replace(/\/$/, "");
     }
 
+    function bindToggle() {
+        $('.toggle').unbind('click').bind('click', function () {
+            $(this).parent().parent().find('pre').toggle();
+        });
+    }
+
     $('#apiendpoint-validate').on('click', function () {
         let thisButton = $(this);
         let responseSection = $('#validate_response');
@@ -252,51 +409,55 @@
         $.ajax({
             url: url,
             method: 'GET', 
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
             success: function (data, textStatus, jqXHR) {
                 console.log(data);
                 localStorage.setItem('apiendpoint', $('#apiendpoint').val());
                 expectedTokenEndpoint = `${endpoint()}/connect/token`;
                 isValid = (data.token_endpoint == expectedTokenEndpoint);
-                let formattedResponse = JSON.stringify(data, null, '\t');
+                let formattedResponse = JSON.stringify(data, null, '  ');
                 if (isValid) {
-                    responseSection.html(`<p class="text-success">Validation Response Successful</p><pre>${formattedResponse}`);
+                    responseSection.html(`<p class="text-success">Validation Response Successful (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
                 }
                 else {
-                    responseSection.html(`<p class="text-danger">Validation Response Failed - Token Endpoint Expected was ${expectedTokenEndpoint}</p><pre>${formattedResponse}`);
+                    responseSection.html(`<p class="text-danger">Validation Response Failed - Token Endpoint Expected was ${expectedTokenEndpoint} (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
                 }
+                bindToggle();
                 thisButton.prop('disabled', false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
                 responseSection.html(`<p class="text-danger">Validation Response Failed - Bad Request</p>`);
                 thisButton.prop('disabled', false);
             }
         });
     });
 
-    var last_registration_response = {};
-    var last_auth_response = {};
 
-    $('#register').on('click', function () {
+    /* ===== PUBLISH FUNCTIONS ===== */
+
+    $('#register_publisher').on('click', function () {
         let thisButton = $(this);
-        let responseSection = $('#reg_response');
+        let responseSection = $('#reg_pub_response');
 
         thisButton.prop('disabled', true);
         responseSection.html('<p class="text-warning">registering...</p>');
         var model = {
-            client_name: $('#reg_client_name').val(),
-            client_uri: $('#reg_client_uri').val(),
-            scope: $('#reg_scope').val(),
+            client_name: $('#reg_pub_client_name').val(),
+            client_uri: $('#reg_pub_client_uri').val(),
+            scope: $('#reg_pub_scope').val(),
         };
 
-        if ($('#reg_add1property').val() != '') {
-            model[$('#reg_add1property').val()] = $('#reg_add1value').val()
+        if ($('#reg_pub_add1property').val() != '') {
+            model[$('#reg_pub_add1property').val()] = $('#reg_pub_add1value').val()
         }
-        if ($('#reg_add2property').val() != '') {
-            model[$('#reg_add2property').val()] = $('#reg_add2value').val()
+        if ($('#reg_pub_add2property').val() != '') {
+            model[$('#reg_pub_add2property').val()] = $('#reg_pub_add2value').val()
         }
-        if ($('#reg_add1property').val() != '') {
-            model[$('#reg_add2property').val()] = $('#reg_add2value').val()
+        if ($('#reg_pub_add1property').val() != '') {
+            model[$('#reg_pub_add2property').val()] = $('#reg_pub_add2value').val()
         }
 
         console.log(model);
@@ -311,38 +472,88 @@
             data: JSON.stringify(model),
             success: function (data, textStatus, jqXHR) {
                 console.log(data);
-                last_registration_response = data;
-                localStorage.setItem('reg_client_id', data.client_id);
-                localStorage.setItem('reg_client_secret', data.client_secret);
-                let formattedResponse = JSON.stringify(data, null, '\t');
-                responseSection.html(`<p class="text-success">Registration Successful</p><pre>${formattedResponse}`);
+                localStorage.setItem('reg_pub_client_id', data.client_id);
+                localStorage.setItem('reg_pub_client_secret', data.client_secret);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Registration Successful (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
                 thisButton.prop('disabled', false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
                 responseSection.html(`<p class="text-danger">Registration Failed - Bad Request</p>`);
                 thisButton.prop('disabled', false);
             }
         });
     });
 
-    $('#auth_userlastreg').on('click', function () {
-        $("#auth_client_id").val(localStorage.getItem('reg_client_id'));
-        $("#auth_client_secret").val(localStorage.getItem('reg_client_secret'));
+    $('#register_wallet').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#reg_wallet_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">registering...</p>');
+        var model = {
+            client_name: $('#reg_wallet_client_name').val(),
+            client_uri: $('#reg_wallet_client_uri').val(),
+            scope: $('#reg_wallet_scope').val(),
+        };
+
+        if ($('#reg_wallet_add1property').val() != '') {
+            model[$('#reg_wallet_add1property').val()] = $('#reg_wallet_add1value').val()
+        }
+        if ($('#reg_wallet_add2property').val() != '') {
+            model[$('#reg_wallet_add2property').val()] = $('#reg_wallet_add2value').val()
+        }
+        if ($('#reg_wallet_add1property').val() != '') {
+            model[$('#reg_wallet_add2property').val()] = $('#reg_wallet_add2value').val()
+        }
+
+        console.log(model);
+
+        var url = `${endpoint()}/connect/register`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            method: 'POST',
+            data: JSON.stringify(model),
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                localStorage.setItem('reg_wallet_client_id', data.client_id);
+                localStorage.setItem('reg_wallet_client_secret', data.client_secret);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Registration Successful (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
+                responseSection.html(`<p class="text-danger">Registration Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
     });
 
+    $('#auth_pub_userlastreg').on('click', function () {
+        $("#auth_pub_client_id").val(localStorage.getItem('reg_pub_client_id'));
+        $("#auth_pub_client_secret").val(localStorage.getItem('reg_pub_client_secret'));
+    });
    
-    $('#authenticate').on('click', function () {
+    $('#authenticate_publisher').on('click', function () {
         let thisButton = $(this);
-        let responseSection = $('#auth_response');
+        let responseSection = $('#auth_pub_response');
 
         thisButton.prop('disabled', true);
         responseSection.html('<p class="text-warning">authenticating...</p>');
         var model = {
-            client_id: $('#auth_client_id').val(),
-            client_secret: $('#auth_client_secret').val(),
-            scope: $('#auth_scope').val(),
-            grant_type: $('#auth_grant_type').val(),
+            client_id: $('#auth_pub_client_id').val(),
+            client_secret: $('#auth_pub_client_secret').val(),
+            scope: $('#auth_pub_scope').val(),
+            grant_type: $('#auth_pub_grant_type').val(),
         };
 
         console.log(model);
@@ -357,22 +568,23 @@
             data: model,
             success: function (data, textStatus, jqXHR) {
                 console.log(data);
-                last_auth_response = data;
-                localStorage.setItem('auth_access_token', data.access_token);
-                let formattedResponse = JSON.stringify(data, null, '\t');
-                responseSection.html(`<p class="text-success">Authentication Successful</p><pre>${formattedResponse}`);
+                localStorage.setItem('auth_pub_access_token', data.access_token);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Authentication Successful (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
                 thisButton.prop('disabled', false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
                 responseSection.html(`<p class="text-danger">Authentication Failed - Bad Request</p>`);
                 thisButton.prop('disabled', false);
             }
         });
     });
-
+ 
     $('#publish_uselasttoken').on('click', function () {
-        $("#publish_token").val(`Bearer ${localStorage.getItem('auth_access_token')}`);
+        $("#publish_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
     });
 
     $('#publish_browsefile').on('click', function () {
@@ -386,8 +598,14 @@
     $('#inputfile').on('change', function () {
         var fr = new FileReader();
         fr.onload = function () {
-            console.log(fr.result);
-            $('#publish_clr').text(fr.result);
+            //console.log(fr.result);
+            var data = JSON.parse(fr.result);
+            if (!data.identity && !data.clr) {
+                console.log("wrapping json to conform");
+                data = { identity: { id: "some identifier here" }, clr: data };
+            }
+            let formattedResponse = JSON.stringify(data, null, '  ');
+            $('#publish_clr').val(formattedResponse);
         }
 
         fr.readAsText(this.files[0]); 
@@ -402,7 +620,7 @@
         responseSection.html('<p class="text-warning">publishing...</p>');
         var model = JSON.parse($('#publish_clr').val());
 
-        console.log(model);
+        //console.log(model);
         var url = `${endpoint()}/api/publish`;
         console.log(`POST ${url}`);
         $.ajax({
@@ -414,17 +632,18 @@
             data: JSON.stringify(model),
             success: function (data, textStatus, jqXHR) {
                 console.log(data);
-                last_registration_response = data;
-                localStorage.setItem('publish_requestid', data.requestId);
+                localStorage.setItem('pub_requestid', data.requestId);
 
                 connectSignalR(endpoint(), data.requestId);
 
-                let formattedResponse = JSON.stringify(data, null, '\t');
-                responseSection.html(`<p class="text-success">Publish Accepted.  Subscribed to SignalR channel</p><pre>${formattedResponse}`);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Publish Accepted.  Subscribed to SignalR channel (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
                 thisButton.prop('disabled', false);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
                 responseSection.html(`<p class="text-danger">Publish Failed - Bad Request</p>`);
                 thisButton.prop('disabled', false);
             }
@@ -432,11 +651,11 @@
     });
 
     $('#inquire_uselasttoken').on('click', function () {
-        $("#inquire_token").val(`Bearer ${localStorage.getItem('auth_access_token')}`);
+        $("#inquire_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
     });
 
     $('#inquire_uselastrequestId').on('click', function () {
-        $("#inquire_requestid").val(localStorage.getItem('publish_requestid'));
+        $("#inquire_requestid").val(localStorage.getItem('pub_requestid'));
     });
 
     $('#inquire').on('click', function () {
@@ -458,8 +677,11 @@
             method: 'GET',
             success: function (data, textStatus, jqXHR) {
                 console.log(data);
-                let formattedResponse = JSON.stringify(data, null, '\t');
-                responseSection.html(`<p class="text-success">Status Inquiry Succeeded</p><pre>${formattedResponse}`);
+                localStorage.setItem('publish_accesskey', data.accessKey);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Status Inquiry Succeeded (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+
+                bindToggle();
                 if (data.qrCode) {
                     $('#inquire_qrcode').attr('src', `data:image/png;base64, ${data.qrCode.data}`);
                     $('#inquire_qrcode').show();
@@ -469,11 +691,146 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
                 responseSection.html(`<p class="text-danger">Status Inquiry Failed - Bad Request</p>`);
                 thisButton.prop('disabled', false);
             }
         });
     });
+
+
+    /* ===== WALLET FUNCTIONS ===== */
+
+    $('#auth_wallet_userlastreg').on('click', function () {
+        $("#auth_wallet_client_id").val(localStorage.getItem('reg_wallet_client_id'));
+        $("#auth_wallet_client_secret").val(localStorage.getItem('reg_wallet_client_secret'));
+    });
+
+    $('#authenticate_wallet').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#auth_wallet_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">authenticating...</p>');
+        var model = {
+            client_id: $('#auth_wallet_client_id').val(),
+            client_secret: $('#auth_wallet_client_secret').val(),
+            scope: $('#auth_wallet_scope').val(),
+            grant_type: $('#auth_wallet_grant_type').val(),
+        };
+
+        console.log(model);
+
+        var url = `${endpoint()}/connect/token`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/x-www-form-urlencoded",
+            dataType: "json",
+            method: 'POST',
+            data: model,
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                localStorage.setItem('auth_wallet_access_token', data.access_token);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Authentication Successful (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
+                responseSection.html(`<p class="text-danger">Authentication Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+    $('#vc_wallet_uselasttoken').on('click', function () {
+        $("#vc_wallet_token").val(`Bearer ${localStorage.getItem('auth_wallet_access_token')}`);
+    });
+
+    $('#vc_wallet_uselastaccesskey').on('click', function () {
+        $("#vc_wallet_accesskey").val(localStorage.getItem('publish_accesskey'));
+    });
+
+    $('#vc_wallet').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#vc_wallet_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">Retrieving VC...</p>');
+        var model = { accessKey: $('#vc_wallet_accesskey').val() };
+
+        //console.log(model);
+        var url = `${endpoint()}/api/credentials`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json",
+            headers: { "Authorization": $('#vc_wallet_token').val() },
+            dataType: "json",
+            method: 'POST',
+            data: JSON.stringify(model),
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">VC Received.  (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
+                responseSection.html(`<p class="text-danger">VC Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
+
+    /* ===== REVOKE FUNCTIONS ===== */
+
+    $('#revoke_uselasttoken').on('click', function () {
+        $("#revoke_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
+    });
+
+    $('#revoke_uselastrequestId').on('click', function () {
+        $("#revoke_requestid").val(localStorage.getItem('pub_requestid'));
+    });
+
+    $('#revoke').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#revoke_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">Revoking...</p>');
+
+        var url = `${endpoint()}/api/requests/${$('#revoke_requestid').val()}`;
+        console.log(`DELETE ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json",
+            headers: { "Authorization": $('#revoke_token').val() },
+            dataType: "json",
+            method: 'DELETE',
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Revocation Successful (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                bindToggle();
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
+                responseSection.html(`<p class="text-danger">Revocation Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
 
 </script>
 }
