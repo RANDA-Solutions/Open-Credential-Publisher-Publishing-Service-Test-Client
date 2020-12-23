@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace OpenCredentialsPublisher.TestClient
+namespace OpenCredentialPublisher.TestClient
 {
     public class Startup
     {
