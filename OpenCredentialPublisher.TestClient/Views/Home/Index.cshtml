@@ -192,6 +192,7 @@
                 <div class="row">
                     <div class="response" id="inquire_response"></div>
                 </div>
+                <a id="inquire_url" href="" target="_blank" style="display:none;">Connect to Web Wallet</a> <br />
                 <img id="inquire_qrcode" src="" alt="QR Code" style="display:none;" />
             </div>
         </div>
@@ -408,7 +409,7 @@
         console.log(`GET ${url}`);
         $.ajax({
             url: url,
-            method: 'GET', 
+            method: 'GET',
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             success: function (data, textStatus, jqXHR) {
@@ -542,7 +543,7 @@
         $("#auth_pub_client_id").val(localStorage.getItem('reg_pub_client_id'));
         $("#auth_pub_client_secret").val(localStorage.getItem('reg_pub_client_secret'));
     });
-   
+
     $('#authenticate_publisher').on('click', function () {
         let thisButton = $(this);
         let responseSection = $('#auth_pub_response');
@@ -582,7 +583,7 @@
             }
         });
     });
- 
+
     $('#publish_uselasttoken').on('click', function () {
         $("#publish_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
     });
@@ -608,7 +609,7 @@
             $('#publish_clr').val(formattedResponse);
         }
 
-        fr.readAsText(this.files[0]); 
+        fr.readAsText(this.files[0]);
         $(this).val("");
     });
 
@@ -662,6 +663,7 @@
         let thisButton = $(this);
         let responseSection = $('#inquire_response');
 
+        $("#inquire_url").hide();
         $('#inquire_qrcode').hide();
 
         thisButton.prop('disabled', true);
@@ -682,6 +684,10 @@
                 responseSection.html(`<p class="text-success">Status Inquiry Succeeded (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
 
                 bindToggle();
+                if (data.url) {
+                    $("#inquire_url").attr("href", data.url);
+                    $("#inquire_url").show();
+                }
                 if (data.qrCode) {
                     $('#inquire_qrcode').attr('src', `data:image/png;base64, ${data.qrCode.data}`);
                     $('#inquire_qrcode').show();

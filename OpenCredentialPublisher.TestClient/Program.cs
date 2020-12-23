@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace OpenCredentialsPublisher.TestClient
+namespace OpenCredentialPublisher.TestClient
 {
     public class Program
     {

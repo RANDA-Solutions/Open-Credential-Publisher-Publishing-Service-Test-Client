@@ -1,6 +1,6 @@
 using System;
 
-namespace OpenCredentialsPublisher.TestClient.Models
+namespace OpenCredentialPublisher.TestClient.Models
 {
     public class ErrorViewModel
     {

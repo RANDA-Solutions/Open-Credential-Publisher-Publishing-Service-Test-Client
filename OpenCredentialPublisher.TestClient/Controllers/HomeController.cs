@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OpenCredentialsPublisher.TestClient.Models;
+using OpenCredentialPublisher.TestClient.Models;
 
-namespace OpenCredentialsPublisher.TestClient.Controllers
+namespace OpenCredentialPublisher.TestClient.Controllers
 {
     public class HomeController : Controller
     {
