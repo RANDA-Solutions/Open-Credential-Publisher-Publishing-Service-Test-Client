@@ -137,6 +137,28 @@
                 </div>
             </div>
 
+            <h5>Configure Publisher Client</h5>
+            <div id="tab-login-publisher" class="border text-left">
+                <div>
+                    <label class="font-weight-bold">POST /api/configuration</label>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Authorization</label>
+                    <input id="configure_publish_token" type="text" class="form-control col-sm-7 token" value="" />
+                    <button id="configure_publish_uselasttoken" type="button" class="btn btn-link btn-link-sm">Use Last Publisher Access Token</button>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Wallet Connect Uri</label>
+                    <input id="configure_publish_wallet_uri" type="text" class="form-control col-sm-7" value="" />
+                </div>
+                <div class="row" style="margin:10px 0;">
+                    <button id="configure_publisher" type="button" class="btn btn-primary">Configure Publisher Client</button>
+                </div>
+                <div class="row">
+                    <div class="response" id="configure_pub_response"></div>
+                </div>
+            </div>
+
             <h5>Publish CLR</h5>
             <div id="tab-publish" class="border text-left">
                 <div>
@@ -330,11 +352,18 @@
 
     $(document).ready(function () {
         var endpoint = localStorage.getItem('apiendpoint');
-
         if (endpoint) {
             console.log(endpoint);
             $('#apiendpoint').val(endpoint);
         }
+        var configure_publish_wallet_uri = localStorage.getItem('configure_publish_wallet_uri');
+        if (configure_publish_wallet_uri && configure_publish_wallet_uri != "undefined") {
+            $("#configure_publish_wallet_uri").val(configure_publish_wallet_uri);
+        }
+        else {
+            $("#configure_publish_wallet_uri").val("https://ocp-wallet-qa.azurewebsites.net/connect");
+        }
+
     });
 
     var signalRConnection = null;
@@ -360,6 +389,8 @@
 
             // if Complete, no need to wait for additional messages, so leave group
             if (status == "Complete") {
+                var lastToken = `Bearer ${localStorage.getItem('auth_pub_access_token')}`;
+                inquire(lastToken, requestId);
                 signalRConnection.invoke("LeaveGroup", requestId)
                     .catch(err => {
                         console.log(err);
@@ -588,6 +619,46 @@
         $("#publish_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
     });
 
+    $('#configure_publish_uselasttoken').on('click', function () {
+        $("#configure_publish_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
+    });
+
+    $('#configure_publisher').on('click', function () {
+        let thisButton = $(this);
+        let responseSection = $('#configure_pub_response');
+
+        thisButton.prop('disabled', true);
+        responseSection.html('<p class="text-warning">configuring...</p>');
+        var model = {
+            AccessKeyBaseUri: $("#configure_publish_wallet_uri").val()
+        };
+
+        //console.log(model);
+        var url = `${endpoint()}/api/configuration`;
+        console.log(`POST ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json",
+            headers: { "Authorization": $('#configure_publish_token').val() },
+            //dataType: "json",
+            method: 'POST',
+            data: JSON.stringify(model),
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                localStorage.setItem('configure_publish_wallet_uri', data.AccessKeyBaseUri);
+
+                responseSection.html('<p class="text-success">Configuration Accepted</p>');
+                thisButton.prop('disabled', false);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
+                responseSection.html(`<p class="text-danger">Configuration Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    });
+
     $('#publish_browsefile').on('click', function () {
         $('#inputfile').trigger('click');
     });
@@ -703,6 +774,48 @@
             }
         });
     });
+
+    function inquire(token, requestId) {
+        let responseSection = $('#inquire_response');
+
+        $("#inquire_url").hide();
+        $('#inquire_qrcode').hide();
+
+        responseSection.html('<p class="text-warning">Retrieving status...</p>');
+
+        var url = `${endpoint()}/api/requests/${requestId}`;
+        console.log(`GET ${url}`);
+        $.ajax({
+            url: url,
+            contentType: "application/json",
+            headers: { "Authorization": token },
+            dataType: "json",
+            method: 'GET',
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                localStorage.setItem('publish_accesskey', data.accessKey);
+                let formattedResponse = JSON.stringify(data, null, '  ');
+                responseSection.html(`<p class="text-success">Status Inquiry Succeeded (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+
+                bindToggle();
+                if (data.url) {
+                    $("#inquire_url").attr("href", data.url);
+                    $("#inquire_url").show();
+                }
+                if (data.qrCode) {
+                    $('#inquire_qrcode').attr('src', `data:image/png;base64, ${data.qrCode.data}`);
+                    $('#inquire_qrcode').show();
+
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                console.log(jqXHR);
+                responseSection.html(`<p class="text-danger">Status Inquiry Failed - Bad Request</p>`);
+                thisButton.prop('disabled', false);
+            }
+        });
+    }
 
 
     /* ===== WALLET FUNCTIONS ===== */
