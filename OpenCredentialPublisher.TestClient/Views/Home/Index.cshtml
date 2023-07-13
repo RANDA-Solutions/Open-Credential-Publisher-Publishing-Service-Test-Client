@@ -151,6 +151,10 @@
                     <label class="col-sm-2">Wallet Connect Uri</label>
                     <input id="configure_publish_wallet_uri" type="text" class="form-control col-sm-7" value="" />
                 </div>
+                <div class="row">
+                    <label class="col-sm-2">Push Credential Uri</label>
+                    <input id="configure_publish_push_uri" type="text" class="form-control col-sm-7" value="" />
+                </div>
                 <div class="row" style="margin:10px 0;">
                     <button id="configure_publisher" type="button" class="btn btn-primary">Configure Publisher Client</button>
                 </div>
@@ -187,6 +191,7 @@
                 </div>
                 <div class="row" style="margin:10px 0;">
                     <button id="publish" type="button" class="btn btn-primary">Publish CLR</button>
+                    <button id="publishPush" type="button" class="btn btn-primary">Publish then Push CLR</button>
                 </div>
                 <div class="row">
                     <div class="response" id="publish_response"></div>
@@ -361,7 +366,14 @@
             $("#configure_publish_wallet_uri").val(configure_publish_wallet_uri);
         }
         else {
-            $("#configure_publish_wallet_uri").val("https://ocp-wallet-qa.azurewebsites.net/connect");
+            $("#configure_publish_wallet_uri").val("https://ocp-wallet-uat.azurewebsites.net/credentials/connect");
+        }
+        var configure_publish_push_uri = localStorage.getItem('configure_publish_push_uri');
+        if (configure_publish_push_uri && configure_publish_push_uri != "undefined") {
+            $("#configure_publish_push_uri").val(configure_publish_wallet_uri);
+        }
+        else {
+            $("#configure_publish_push_uri").val("https://ocp-wallet-uat.azurewebsites.net/credentials/connect/external");
         }
 
     });
@@ -630,7 +642,8 @@
         thisButton.prop('disabled', true);
         responseSection.html('<p class="text-warning">configuring...</p>');
         var model = {
-            AccessKeyBaseUri: $("#configure_publish_wallet_uri").val()
+            AccessKeyBaseUri: $("#configure_publish_wallet_uri").val(),
+            PushUri: $("#configure_publish_push_uri").val()
         };
 
         //console.log(model);
@@ -646,7 +659,7 @@
             success: function (data, textStatus, jqXHR) {
                 console.log(data);
                 localStorage.setItem('configure_publish_wallet_uri', data.AccessKeyBaseUri);
-
+                localStorage.setItem('configure_publish_push_uri', data.PushUri);
                 responseSection.html('<p class="text-success">Configuration Accepted</p>');
                 thisButton.prop('disabled', false);
             },
@@ -721,6 +734,44 @@
             }
         });
     });
+
+        $('#publishPush').on('click', function () {
+            let thisButton = $(this);
+            let responseSection = $('#publish_response');
+
+            thisButton.prop('disabled', true);
+            responseSection.html('<p class="text-warning">publishing...</p>');
+            var model = JSON.parse($('#publish_clr').val());
+
+            //console.log(model);
+            var url = `${endpoint()}/api/publish/thenpush`;
+            console.log(`POST ${url}`);
+            $.ajax({
+                url: url,
+                contentType: "application/json",
+                headers: { "Authorization": $('#publish_token').val() },
+                dataType: "json",
+                method: 'POST',
+                data: JSON.stringify(model),
+                success: function (data, textStatus, jqXHR) {
+                    console.log(data);
+                    localStorage.setItem('pub_requestid', data.requestId);
+
+                    connectSignalR(endpoint(), data.requestId);
+
+                    let formattedResponse = JSON.stringify(data, null, '  ');
+                    responseSection.html(`<p class="text-success">Publish Accepted.  Subscribed to SignalR channel (<span class="btn-link toggle">toggle</span>)</p><pre>${formattedResponse}`);
+                    bindToggle();
+                    thisButton.prop('disabled', false);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus + ": " + jqXHR.status + " " + errorThrown);
+                    console.log(jqXHR);
+                    responseSection.html(`<p class="text-danger">Publish Failed - Bad Request</p>`);
+                    thisButton.prop('disabled', false);
+                }
+            });
+        });
 
     $('#inquire_uselasttoken').on('click', function () {
         $("#inquire_token").val(`Bearer ${localStorage.getItem('auth_pub_access_token')}`);
